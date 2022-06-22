@@ -35,7 +35,7 @@ Vector2f::Vector2f(const Vector2f& rv) {
 }
 
 Vector2f& Vector2f::operator=(const Vector2f& rv) {
- 	if (this != &rv) {
+     if (this != &rv) {
         m_elements[0] = rv[0];
         m_elements[1] = rv[1];
     }
@@ -60,7 +60,7 @@ float& Vector2f::y() {
 
 float Vector2f::x() const {
     return m_elements[0];
-}	
+}    
 
 float Vector2f::y() const {
     return m_elements[1];
@@ -119,26 +119,26 @@ Vector2f::operator float*() {
 }
 
 void Vector2f::print() const {
-	printf("<%.4f, %.4f>\n",
-		m_elements[0], m_elements[1]);
+    printf("<%.4f, %.4f>\n",
+        m_elements[0], m_elements[1]);
 }
 
 Vector2f& Vector2f::operator+=(const Vector2f& v) {
-	m_elements[0] += v.m_elements[0];
-	m_elements[1] += v.m_elements[1];
-	return *this;
+    m_elements[0] += v.m_elements[0];
+    m_elements[1] += v.m_elements[1];
+    return *this;
 }
 
 Vector2f& Vector2f::operator-=(const Vector2f& v) {
-	m_elements[0] -= v.m_elements[0];
-	m_elements[1] -= v.m_elements[1];
-	return *this;
+    m_elements[0] -= v.m_elements[0];
+    m_elements[1] -= v.m_elements[1];
+    return *this;
 }
 
 Vector2f& Vector2f::operator*=(float f) {
-	m_elements[0] *= f;
-	m_elements[1] *= f;
-	return *this;
+    m_elements[0] *= f;
+    m_elements[1] *= f;
+    return *this;
 }
 
 // Static method
@@ -148,16 +148,16 @@ float Vector2f::dot(const Vector2f& v0, const Vector2f& v1) {
 
 // Static method
 Vector3f Vector2f::cross(const Vector2f& v0, const Vector2f& v1) {
-	return Vector3f(
-		0,
-		0,
-		v0.x() * v1.y() - v0.y() * v1.x()
-	);
+    return Vector3f(
+        0,
+        0,
+        v0.x() * v1.y() - v0.y() * v1.x()
+    );
 }
 
 // Static method
 Vector2f Vector2f::lerp(const Vector2f& v0, const Vector2f& v1, float alpha) {
-	return alpha * (v1 - v0) + v0;
+    return alpha * (v1 - v0) + v0;
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -8,36 +8,36 @@ class Vector3f;
 class Vector2f {
 public:
     static const Vector2f ZERO;
-	static const Vector2f UP;
-	static const Vector2f RIGHT;
+    static const Vector2f UP;
+    static const Vector2f RIGHT;
 
     Vector2f(float f = 0.f);
     Vector2f(float x, float y);
 
-	// Copy constructors
+    // Copy constructors
     Vector2f(const Vector2f& rv);
 
-	// Assignment operators
-	Vector2f& operator=(const Vector2f& rv);
+    // Assignment operators
+    Vector2f& operator=(const Vector2f& rv);
 
-	// No destructor necessary
+    // No destructor necessary
 
-	// Returns the ith element
+    // Returns the ith element
     const float& operator[](int i) const;
-	float& operator[](int i);
+    float& operator[](int i);
 
     float& x();
-	float& y();
+    float& y();
 
-	float x() const;
-	float y() const;
+    float x() const;
+    float y() const;
 
     Vector2f xy() const;
-	Vector2f yx() const;
-	Vector2f xx() const;
-	Vector2f yy() const;
+    Vector2f yx() const;
+    Vector2f xx() const;
+    Vector2f yy() const;
 
-	// Returns (-y, x)
+    // Returns (-y, x)
     Vector2f normal() const;
 
     float abs() const;
@@ -47,24 +47,24 @@ public:
 
     void negate();
 
-	// ---- Utility ----
+    // ---- Utility ----
     operator const float*() const; // Automatic type conversion for OpenGL 
     operator float*(); // Automatic type conversion for OpenGL 
-	void print() const;
+    void print() const;
 
-	Vector2f& operator+=(const Vector2f& v);
-	Vector2f& operator-=(const Vector2f& v);
-	Vector2f& operator*=(float f);
+    Vector2f& operator+=(const Vector2f& v);
+    Vector2f& operator-=(const Vector2f& v);
+    Vector2f& operator*=(float f);
 
     static float dot(const Vector2f& v0, const Vector2f& v1);
 
-	static Vector3f cross(const Vector2f& v0, const Vector2f& v1);
+    static Vector3f cross(const Vector2f& v0, const Vector2f& v1);
 
-	// Returns v0 * (1 - alpha) * v1 * alpha
-	static Vector2f lerp(const Vector2f& v0, const Vector2f& v1, float alpha);
+    // Returns v0 * (1 - alpha) * v1 * alpha
+    static Vector2f lerp(const Vector2f& v0, const Vector2f& v1, float alpha);
 
 private:
-	float m_elements[2];
+    float m_elements[2];
 };
 
 // Component-wise operators
