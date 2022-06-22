@@ -3,106 +3,109 @@
 #include <cmath>
 #include <cassert>
 
-class Vector3 {
+template <typename T, int dim>
+class Vector {
 private:
-    float x, y, z;
+    T x[dim];
 
 public:
-    Vector3(float _x, float _y, float _z)
+    Vector(T _x, T _y, T _z)
         : x(_x), y(_y), z(_z) { }
 
-    static Vector3 zero() {
-        return Vector3(0, 0, 0);
+    Vector<T, dim> operator+(const Vector<T, dim> &r) {
+        return Vector<T, dim>(x + r.x, y + r.y, z + r.z);
     }
 
-    Vector3 operator+(const Vector3 &r) {
-        return Vector3(x + r.x, y + r.y, z + r.z);
+    Vector<T, dim> operator-(const Vector<T, dim> &r) {
+        return Vector<T, dim>(x - r.x, y - r.y, z - r.z);
     }
 
-    Vector3 operator-(const Vector3 &r) {
-        return Vector3(x - r.x, y - r.y, z - r.z);
+    Vector<T, dim> operator-() {
+        return Vector<T, dim>(-x, -y, -z);
     }
 
-    Vector3 operator-() {
-        return Vector3(-x, -y, -z);
+    Vector<T, dim> operator*(T a) {
+        return Vector<T, dim>(x * a, y * a, z * a);
     }
 
-    Vector3 operator*(float a) {
-        return Vector3(x * a, y * a, z * a);
+    Vector<T, dim> operator*(const Vector<T, dim> &r) {
+        return Vector<T, dim>(x * r.x, y * r.y, z * r.z);
     }
 
-    Vector3 operator*(const Vector3 &r) {
-        return Vector3(x * r.x, y * r.y, z * r.z);
-    }
-
-    Vector3 operator/(float a) {
+    Vector<T, dim> operator/(T a) {
         return (*this) * (1.0 / a);
     }
 
-    Vector3 operator/(const Vector3 &r) {
-        return Vector3(x / r.x, y / r.y, z / r.z);
+    Vector<T, dim> operator/(const Vector<T, dim> &r) {
+        return Vector<T, dim>(x / r.x, y / r.y, z / r.z);
     }
 
-    float &operator[](int index) {
-        if (index == 0) return x;
-        else if (index == 1) return y;
-        else if (index == 2) return z;
-        else assert(false);
+    T &operator[](int index) {
+        if (index >= 0 && index < dim)
+            return x[index];
+        else
+            assert(false);
     }
 
-    bool operator==(const Vector3 &r) {
-        return (x == r.x) && (y == r.y) && (z == r.z);
+    bool operator==(const Vector<T, dim> &r) {
+        for (int i = 0; i < dim; ++i)
+            if (x[i] != r.x[i])
+                return false;
+        return true;
     }
 
-    bool operator!=(const Vector3 &r) {
+    bool operator!=(const Vector<T, dim> &r) {
         return !((*this) == r);
     }
 
-    Vector3 &operator+=(const Vector3 &r) {
+    Vector<T, dim> &operator+=(const Vector<T, dim> &r) {
         x += r.x;
         y += r.y;
         z += r.z;
         return *this;
     }
 
-    Vector3 &operator-=(const Vector3 &r) {
+    Vector<T, dim> &operator-=(const Vector<T, dim> &r) {
         x -= r.x;
         y -= r.y;
         z -= r.z;
         return *this;
     }
 
-    Vector3 &operator*=(const Vector3 &r) {
+    Vector<T, dim> &operator*=(const Vector<T, dim> &r) {
         x *= r.x;
         y *= r.y;
         z *= r.z;
         return *this;
     }
 
-    Vector3 &operator/=(const Vector3 &r) {
+    Vector<T, dim> &operator/=(const Vector<T, dim> &r) {
         x /= r.x;
         y /= r.y;
         z /= r.z;
         return *this;
     }
 
-    float dot(const Vector3 &r) {
-        return x * r.x + y * r.y + z * r.z;
+    T dot(const Vector<T, dim> &r) {
+        T result = 0;
+        for (int i = 0; i < dim; ++i)
+            result += x[i] * r.x[i];
+        return result;
     }
 
-    Vector3 cross(const Vector3 &r) {
-        return Vector3(
+    Vector cross(const Vector &r) {
+        return Vector(
             y * r.z - z * r.y,
             z * r.x - x * r.z,
             x * r.y - y * r.x
-        );
+       );
     }
 
-    float len() {
+    T len() {
         return sqrtf(this->dot(*this));
     }
 
-    Vector3 norm() {
+    Vector norm() {
         return (*this) / len();
     }
 };
