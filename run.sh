@@ -11,3 +11,5 @@ cd build
 cmake ..
 make -j
 cd ..
+
+./bin/NAIVE_RAY_TRACER ./test.txt ./test.bmp

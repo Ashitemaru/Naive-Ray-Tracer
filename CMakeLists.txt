@@ -13,7 +13,10 @@ ENDIF ()
 ADD_SUBDIRECTORY(deps/vecmath)
 
 SET(NAIVE_RAY_TRACER_SOURCES
-    src/main.cpp)
+    src/main.cpp
+    src/scene_parser.cpp
+    src/mesh.cpp
+    src/octree.cpp)
 
 SET(NAIVE_RAY_TRACER_INCLUDES
     include/geometry/group.hpp
@@ -37,11 +40,18 @@ SET(NAIVE_RAY_TRACER_INCLUDES
     include/geometry/transform.hpp
     include/geometry/triangle.hpp
     include/geometry/bbox.hpp
-    include/geometry/mesh.hpp
-    include/utils/octree.hpp)
+    include/geometry/mesh.h
+    include/utils/octree.h)
 
 SET(CMAKE_CXX_STANDARD 11)
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+
+FIND_PACKAGE(OpenMP REQUIRED)
+IF (OPENMP_FOUND)
+    SET(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS})
+    SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS})
+    SET(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
+ENDIF ()
 
 ADD_EXECUTABLE(${PROJECT_NAME} ${NAIVE_RAY_TRACER_SOURCES} ${NAIVE_RAY_TRACER_INCLUDES})
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} vecmath)

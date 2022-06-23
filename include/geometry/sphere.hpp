@@ -13,7 +13,8 @@ public:
         radius = 1.;
     }
 
-    Sphere(const Vector3f &_c, double _r) {
+    Sphere(const Vector3f &_c, double _r, Material *m)
+        : Object3D(m) {
         center = _c;
         radius = _r;
     }
@@ -44,4 +45,13 @@ public:
         });
         return true;
     }
+
+    virtual std::pair<HitSurface, double> samplePoint(RandomEngine &reng) const override {
+		float phi = 2 * M_PI * reng.getUniformDouble(0, 1);
+		float z = 2 * reng.getUniformDouble(0, 1) - 1;
+		Vector3f normal(std::sqrt(1 - z * z) * std::cos(phi), std::sqrt(1 - z * z) * std::sin(phi), z);
+		Vector3f pos = center + normal * radius;
+
+        return std::make_pair(HitSurface { pos, (pos - center).normalized() }, 1. / (4 * M_PI * radius * radius));
+	}
 };

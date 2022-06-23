@@ -50,6 +50,10 @@ public:
         return true;
     }
 
+    virtual std::pair<HitSurface, double> samplePoint(RandomEngine &reng) const override {
+		return std::make_pair(HitSurface { Vector3f::ZERO, n }, -1.);
+	}
+
     // TODO: Understand here, texture related topics
     void addTexture(const Vector3f &e0, const Vector3f &e1, const Vector3f &o) {
         this->origin = o + n * (d - Vector3f::dot(n, o));

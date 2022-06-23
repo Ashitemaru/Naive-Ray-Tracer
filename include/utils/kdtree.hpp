@@ -39,11 +39,11 @@ private:
         now->direction = direction;
         now->photon = &base[m];
 
-        const int maxParaLevel = (int) std::log2(omp_get_max_threads());
+        const int maxParaLevel = (int) std::log2(/* omp_get_max_threads() */ 12);
         if (depth < maxParaLevel + 1) {
-#pragma omp task firstprivate(now)
+// #pragma omp task firstprivate(now)
             now->left = this->build(base, m, depth + 1);
-#pragma omp task firstprivate(now)
+// #pragma omp task firstprivate(now)
             now->right = this->build(base + m + 1, len - m - 1, depth + 1);
         } else {
             now->left = this->build(base, m, depth + 1);
@@ -112,9 +112,9 @@ private:
 
 public:
     KDTree(Photon *photonList, int len) {
-#pragma omp parallel
+// #pragma omp parallel
 {
-#pragma omp single
+// #pragma omp single
 {
         this->root = this->build(photonList, len, 0);
 }

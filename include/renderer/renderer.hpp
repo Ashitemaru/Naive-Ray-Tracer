@@ -27,23 +27,25 @@ private:
 
     void buildPhotonMap(SceneParser &parser, std::vector<RandomEngine> &rengList) {
         std::vector<Photon> photonList;
-        int lightNum = parser.getLightNum();
+        int lightNum = parser.getNumLights();
 
-#pragma omp parallel for schedule(dynamic, 100)
+// #pragma omp parallel for schedule(dynamic, 100)
         // Traverse all the photons
         for (int id = 0; id < this->photonNum; ++id) {
             // Randomly get a light source
-            RandomEngine &reng = rengList[omp_get_thread_num()];
+            RandomEngine &reng = rengList[/* omp_get_thread_num() */ 0];
             int lightId = reng.getUniformInt(0, lightNum);
             Light *light = parser.getLight(lightId);
 
             // Sample a ray from this light source
-            double pdf;
-            Vector3f power;
-            Ray ray = light->sampleRay(power, pdf, reng);
+            auto result = light->sampleRay(reng);
+            Ray ray = result.ray;
+            Vector3f power = result.power;
 
-            if (pdf < 0) continue; // Invalid ray, pass it
-            power = power / std::max(1e-6, pdf) * lightNum;
+            std::cout << "Get: " << __FILE__ << ": " << __LINE__ << std::endl;
+
+            if (result.pdf < 0) continue; // Invalid ray, pass it
+            power = power / std::max(1e-6, result.pdf) * lightNum;
 
             auto validVector = [&](const Vector3f &v) -> bool {
                 return !(
@@ -52,6 +54,8 @@ private:
                     v[2] < 0 || std::isinf(v[2]) || std::isnan(v[2])
                 );
             };
+
+            std::cout << "Get: " << __FILE__ << ": " << __LINE__ << std::endl;
 
             // Let the photon travel & bump on objects, calc its power
             for (int dep = 0; dep < this->depth; ++dep) {
@@ -73,55 +77,123 @@ private:
                 bool isIntersect = parser.intersect(ray, hit, 1e-6, isLight, lightId);
                 if (!isIntersect) break; // No intersect, photon travels straightly
 
+                std::cout << "Get: " << __FILE__ << ": " << __LINE__ << std::endl;
+
                 // Calc the new power of photon & direction of it
-                Material *material = hit.getMaterial();
-                HitSurface surface = hit.getSurface();
+                Material *material = hit.material;
+                HitSurface surface = hit.surface;
 
                 /**
                  * @ref: https://github.com/Numendacil/Graphics/blob/master/include/render.hpp
                  */
 
                 // The input ray
-                /*
                 Vector3f in = -ray.d.normalized();
-                double pdf;
-                RefType type;
-                Vector3f out;
-                Vector3f tangent = GetPerpendicular(surface.normal);
-                Vector3f binormal = Vector3f::cross(surface.normal, tangent).normalized();
-                Vector3f co = material->SampleOutDir(AbsToRel(tangent, binormal, surface.normal, in), out, TransportMode::LIGHT, pdf, type, rng);
-                if (type == RefType::DIFFUSE)
-                {
-                    #pragma omp critical
+                Vector3f x = surface.normal;
+                Vector3f y = Trans::generateVertical(x);
+                Vector3f z = Vector3f::cross(x, y).normalized();
+                auto res = material->getOutputRay(Trans::worldToLocal(y, z, x, in), true, reng);
+                Vector3f co = res.x;
+
+                if (res.isDiffuse) {
+// #pragma omp critical
                     {
-                        Photons.push_back(Photon{surface.position, in, power});
+                        photonList.push_back(Photon { surface.position, in, power });
                     }
                 }
-                if (surface.HasTexture && material->HasTexture())
-                {
-                    co = co * material->GetTexture(surface.cord);
-                }
-                out = RelToAbs(tangent, binormal, surface.normal, out);
+                if (surface.hasTexture && material->textured())
+                    co = co * material->getTexturePixel(surface.cord);
+
+                Vector3f out = Trans::localToWorld(y, z, x, res.out);
                 ray = Ray(surface.position, out);
-                power = power * co / std::max(pdf, 1e-6)  
-                    * std::abs(Vector3f::dot(out, surface.geoNormal)) * std::abs(Vector3f::dot(in, surface.normal)) / std::abs(Vector3f::dot(in, surface.geoNormal));
-                    */
+                power =
+                    power * co / std::max(res.pdf, 1e-6) *
+                    std::abs(Vector3f::dot(out, surface.geoNormal)) *
+                    std::abs(Vector3f::dot(in, x)) /
+                    std::abs(Vector3f::dot(in, surface.geoNormal));
             }
         }
+        gMap.set(photonList);
+        gMap.constructTree();
     }
 
     Vector3f getRadiance(const Ray &r, SceneParser &parser, RandomEngine &reng) {
+        Ray ray = r;
+        Vector3f power(1, 1, 1);
 
+        for (int depth = 0; depth < this->depth; depth++) {
+            Hit hit;
+            bool isLight;
+            int lightId = 0;
+            if (!parser.intersect(ray, hit, 1e-6, isLight, lightId))
+                return parser.getBackgroundColor();
+
+            Vector3f dir = ray.d.normalized();
+
+            Material* material = hit.material;
+            HitSurface surface = hit.surface;
+
+            Vector3f x = surface.normal;
+            Vector3f y = Trans::generateVertical(x);
+            Vector3f z = Vector3f::cross(x, y).normalized();
+            auto res = material->getOutputRay(Trans::worldToLocal(y, z, x, -dir), false, reng);
+
+            if (res.isDiffuse) {
+                if (isLight)
+                    return power * (getPhotonRadiance(dir, hit, parser, reng) 
+                        + parser.getLight(lightId)->getIllumin(dir) * std::abs(Vector3f::dot(dir, x)));
+                return power * getPhotonRadiance(dir, hit, parser, reng);
+            }
+
+            if (surface.hasTexture && material->textured())
+                power = power * material->getTexturePixel(surface.cord);
+
+            Vector3f out = Trans::localToWorld(y, z, x, res.out);
+            ray = Ray(surface.position, out);
+            power = power * res.x * std::abs(Vector3f::dot(out, x)) / std::max(res.pdf, 1e-6);
+            if (power.length() < 1e-5) break;
+        }
+        return power;
+    }
+
+    Vector3f getPhotonRadiance(const Vector3f& v, const Hit& hit, SceneParser& parser, RandomEngine& reng) {
+        const HitSurface& surface = hit.surface;
+        Material* material = hit.material;
+
+        std::vector<Photon *> res = gMap.IRSearch(surface.position, searchRadius * searchRadius);
+        Vector3f x = surface.normal;
+        Vector3f y = Trans::generateVertical(x);
+        Vector3f z = Vector3f::cross(x, y).normalized();
+        Vector3f in = Trans::worldToLocal(y, z, x, -v);
+
+        Vector3f color = Vector3f::ZERO;
+        for (auto ph_ptr : res) {
+            Photon ph = *ph_ptr;
+            color +=
+                ph.power * material->shade(
+                    in,
+                    Trans::worldToLocal(y, z, x, ph.direction),
+                    false
+                );
+        };
+        if (surface.hasTexture && hit.material->textured())
+            color = color * hit.material->getTexturePixel(surface.cord);
+
+        return (
+            color / (M_PI * searchRadius * searchRadius * photonNum) +
+            parser.getAmbient() * material->shade(in, Vector3f(0, 0, 1), false)
+        );
     }
 
 public:
-    SPPMRenderer() { }
+    SPPMRenderer(int n, int i, int d, int nrays, double r, double a)
+        : photonNum(n), iter(i), depth(d), rayNum(nrays), searchRadius(r), alpha(a) { }
     
     void render(SceneParser &parser, Image &image) {
         std::vector<Vector3f> img(image.getHeight() * image.getWidth());
 
         // Initialize random engines
-        std::vector<RandomEngine> rengList(omp_get_max_threads());
+        std::vector<RandomEngine> rengList(/* omp_get_max_threads() */ 12);
         for (int i = 0; i < (int) rengList.size(); i++) {
             rengList[i].setSeed(rengList[i].getUniformInt(0, rengList.size()) + i * rengList.size());
         }
@@ -134,11 +206,11 @@ public:
 
             Image renderImg(image.getWidth(), image.getHeight()); 
 
-#pragma omp parallel for collapse(2) schedule(dynamic, 5)
+// #pragma omp parallel for collapse(2) schedule(dynamic, 5)
             // Traverse all the pixels
             for (int i = 0; i < image.getWidth(); i++) {
                 for (int j = 0; j < image.getHeight(); j++) {
-                    RandomEngine& reng = rengList[omp_get_thread_num()];
+                    RandomEngine& reng = rengList[/* omp_get_thread_num() */ 0];
                     Vector3f color = Vector3f::ZERO;
 
                     // Sample rays
@@ -172,7 +244,7 @@ public:
 
                     renderImg.setPixel(i, j, colorTmp / maxColor);
 
-#pragma omp critical
+// #pragma omp critical
                     {
                         std::cout << "i = " << i << ", j = " << j << " finished." << std::endl;
                     }
@@ -181,7 +253,7 @@ public:
 
             // Save the temporary result & step the search radius
             renderImg.saveBMP(("tmp/" + std::to_string(i) + ".bmp").c_str());
-            this->searchRadius *= sqrt((i + this->alpha) / (i + 1));
+            searchRadius *= sqrt((i + this->alpha) / (i + 1));
         }
 
         // Pass out the render result

@@ -13,12 +13,12 @@ int main(int argc, char *argv[]) {
     }
 
     std::string inputFile = argv[1];
-    std::string outputFile = argv[2] + std::string(".bmp");
+    std::string outputFile = argv[2];
 
     SceneParser parser(inputFile.c_str());
     Camera *camera = parser.getCamera();
     Image img(camera->getWidth(), camera->getHeight());
-    SPPMRenderer renderer;
+    SPPMRenderer renderer(400000, 400, 100, 16, 0.5, 0.75);
 
     renderer.render(parser, img);
     img.saveBMP(outputFile.c_str());

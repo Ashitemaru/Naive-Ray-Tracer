@@ -141,11 +141,11 @@ public:
         double threshold = std::cos(angle);
 
         double phi = 2 * M_PI * reng.getUniformDouble(0, 1);
-        double z = (1 - threshold) * reng.getUniformDouble(0, 1) + threshold;
+        double t = (1 - threshold) * reng.getUniformDouble(0, 1) + threshold;
         Vector3f out = Vector3f(
-            std::sqrt(1 - z * z) * std::cos(phi),
-            std::sqrt(1 - z * z) * std::sin(phi),
-            z
+            std::sqrt(1 - t * t) * std::cos(phi),
+            std::sqrt(1 - t * t) * std::sin(phi),
+            t
         );
 
         Vector3f x = direction;

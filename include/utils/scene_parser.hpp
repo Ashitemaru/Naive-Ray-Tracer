@@ -4,6 +4,16 @@
 #include "renderer/light.hpp"
 #include "renderer/hit.hpp"
 #include "geometry/group.hpp"
+#include "geometry/mesh.h"
+#include "geometry/bbox.hpp"
+#include "geometry/object3d.hpp"
+#include "geometry/plane.hpp"
+#include "geometry/rectangle.hpp"
+#include "geometry/sphere.hpp"
+#include "geometry/transform.hpp"
+#include "geometry/triangle.hpp"
+
+#define MAX_PARSER_TOKEN_LENGTH 1024
 
 class SceneParser {
 private:
@@ -53,28 +63,56 @@ private:
     int getToken(char token[MAX_PARSER_TOKEN_LENGTH]);
 
     Vector3f readVector3f();
-
-    float readFloat();
+    double readDouble();
     int readInt();
 
 public:
-    SceneParser(const char *filename) {
-        // TODO
-    }
+    SceneParser() = delete;
+	SceneParser(const char *filename);
 
-    Camera *getCamera() {
-        // TODO
-    }
+	~SceneParser();
 
-    int getLightNum() {
-        // TODO
-    }
+    Camera *getCamera() const {
+		return camera;
+	}
 
-    Light *getLight(int index) {
-        // TODO
-    }
+	Vector3f getBackgroundColor() const {
+		return backgroundColor;
+	}
 
-    bool intersect(const Ray &r, Hit &h, double tmin, bool &isLight, int &lightId) {
-        // TODO
-    }
+	Vector3f getAmbient() const {
+		return ambientColor;
+	}
+
+	int getNumLights() const {
+		return numLights;
+	}
+
+	Light *getLight(int i) const {
+		assert(i >= 0 && i < numLights);
+		return lights[i];
+	}
+
+	int getNumMaterials() const {
+		return numMaterials;
+	}
+
+	Material *getMaterial(int i) const {
+		assert(i >= 0 && i < numMaterials);
+		return materials[i];
+	}
+
+	Group *getGroup() const {
+		return group;
+	}
+
+	bool intersect(const Ray &r, Hit &h, double tmin, bool& isLight, int& LightIdx) const {
+		bool objIntersect = group->intersect(r, h, tmin);
+		isLight = false;
+		for (int i = 0; i < numLights; i++) {
+			isLight |= lights[i]->intersect(r, h, tmin);
+			if (isLight) LightIdx = i;
+		}
+		return isLight | objIntersect;
+	}
 };

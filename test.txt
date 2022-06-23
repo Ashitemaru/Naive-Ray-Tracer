@@ -1,0 +1,59 @@
+
+PerspectiveCamera {
+    center 0 0 5
+    direction 0 0 -1
+    up 0 1 0
+    angle 100
+    width 400
+    height 400
+    gamma 2.2
+}
+
+Background {
+    color 0 0 0
+    ambient 0.1 0.1 0.1
+}
+
+Materials {
+    numMaterials 3
+    LambertMaterial {
+        color 1 1 1
+        texture models/textures/pebble.bmp
+    }
+    LambertMaterial {
+        color 1 1 1
+    }
+    TransparentMaterial {
+        color 1 1 1
+        index 1.01
+    }
+}
+
+Group {
+    numObjects 2
+    MaterialIndex 1
+    Transform {
+        Translate 0 -2 1
+        Scale 1 1 1
+        TriangleMesh {
+            obj_file models/miku.obj
+        }
+    }
+    MaterialIndex 0
+    Plane {
+        normal 0 1 0
+        offset -2
+        e1 5 0 0
+        e2 0 0 -5
+        origin 0 -2 0
+    }
+}
+
+Lights {
+    numLights 1
+    PointLight {
+        position 0.0 5 4
+        power 70 70 70
+    }
+}
+
