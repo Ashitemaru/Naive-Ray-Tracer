@@ -32,10 +32,10 @@ public:
         this->center = _center;
         this->direction = _direction.normalized();
         this->horizontal = Vector3f::cross(this->direction, _up).normalized();
-		this->up = Vector3f::cross(this->horizontal, this->direction).normalized();
-		this->width = _width;
-		this->height = _height;
-		this->gamma = _gamma;
+        this->up = Vector3f::cross(this->horizontal, this->direction).normalized();
+        this->width = _width;
+        this->height = _height;
+        this->gamma = _gamma;
     }
 
     virtual ~Camera() = default;
@@ -61,8 +61,8 @@ public:
         double _angle // Specialized parameter for PerspectiveCamera
     ) : Camera(_center, _direction, _up, _width, _height, _gamma) {
         // Angle in radian
-		this->fy = (double) _height / (2. * tan(_angle / 2.));
-		this->fx = this->fy;
+        this->fy = (double) _height / (2. * tan(_angle / 2.));
+        this->fx = this->fy;
     }
 
     virtual Ray sampleRay(int x, int y, RandomEngine &reng) const override {
@@ -98,8 +98,8 @@ public:
         double _f // Specialized parameter for LenCamera
     ) : Camera(_center, _direction, _up, _width, _height, _gamma) {
         // Angle in radian
-		this->fy = (double) _height / (2. * tan(_angle / 2.));
-		this->fx = this->fy;
+        this->fy = (double) _height / (2. * tan(_angle / 2.));
+        this->fx = this->fy;
         this->aperture = _aperture;
         this->f = _f;
     }
