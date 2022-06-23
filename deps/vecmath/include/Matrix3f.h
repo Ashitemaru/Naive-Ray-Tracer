@@ -11,10 +11,10 @@ class Vector3f;
 class Matrix3f {
 public:
     // Fill a 3x3 matrix with "fill", default to 0.
-    Matrix3f(float fill = 0.f);
-    Matrix3f(float m00, float m01, float m02,
-        float m10, float m11, float m12,
-        float m20, float m21, float m22);
+    Matrix3f(double fill = 0.);
+    Matrix3f(double m00, double m01, double m02,
+        double m10, double m11, double m12,
+        double m20, double m21, double m22);
     
     // setColumns = true => Sets the columns of the matrix to be [v0 v1 v2]
     // Otherwise, sets the rows
@@ -24,8 +24,8 @@ public:
     Matrix3f& operator=(const Matrix3f& rm); // Assignment operator
     // No destructor necessary
 
-    const float& operator()(int i, int j) const;
-    float& operator()(int i, int j);
+    const double& operator()(int i, int j) const;
+    double& operator()(int i, int j);
 
     Vector3f getRow(int i) const;
     void setRow(int i, const Vector3f& v);
@@ -41,35 +41,35 @@ public:
     // Starting with upper left corner at (i0, j0)
     void setSubmatrix2x2(int i0, int j0, const Matrix2f& m);
 
-    float determinant() const;
-    Matrix3f inverse(bool* pbIsSingular = NULL, float epsilon = 0.f) const; // TODO: Invert in place as well
+    double determinant() const;
+    Matrix3f inverse(bool* pbIsSingular = NULL, double epsilon = 0.) const; // TODO: Invert in place as well
 
     void transpose();
     Matrix3f transposed() const;
 
     // ---- Utility ----
-    operator float*(); // Automatic type conversion for GL
+    operator double*(); // Automatic type conversion for GL
     void print();
 
-    static float determinant3x3(float m00, float m01, float m02,
-        float m10, float m11, float m12,
-        float m20, float m21, float m22);
+    static double determinant3x3(double m00, double m01, double m02,
+        double m10, double m11, double m12,
+        double m20, double m21, double m22);
 
     static Matrix3f ones();
     static Matrix3f identity();
-    static Matrix3f rotateX(float radians);
-    static Matrix3f rotateY(float radians);
-    static Matrix3f rotateZ(float radians);
-    static Matrix3f scaling(float sx, float sy, float sz);
-    static Matrix3f uniformScaling(float s);
-    static Matrix3f rotation(const Vector3f& rDirection, float radians);
+    static Matrix3f rotateX(double radians);
+    static Matrix3f rotateY(double radians);
+    static Matrix3f rotateZ(double radians);
+    static Matrix3f scaling(double sx, double sy, double sz);
+    static Matrix3f uniformScaling(double s);
+    static Matrix3f rotation(const Vector3f& rDirection, double radians);
 
     // Returns the rotation matrix represented by a unit quaternion
     // If q is not normalized, it normalized first
     static Matrix3f rotation(const Quat4f& rq);
 
 private:
-    float m_elements[9];
+    double m_elements[9];
 };
 
 // Matrix-Vector multiplication

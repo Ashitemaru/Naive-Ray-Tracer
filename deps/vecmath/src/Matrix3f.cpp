@@ -9,14 +9,14 @@
 #include "Quat4f.h"
 #include "Vector3f.h"
 
-Matrix3f::Matrix3f(float fill) {
+Matrix3f::Matrix3f(double fill) {
     for (int i = 0; i < 9; ++i)
         m_elements[i] = fill;
 }
 
-Matrix3f::Matrix3f(float m00, float m01, float m02,
-                   float m10, float m11, float m12,
-                   float m20, float m21, float m22) {
+Matrix3f::Matrix3f(double m00, double m01, double m02,
+                   double m10, double m11, double m12,
+                   double m20, double m21, double m22) {
     m_elements[0] = m00;
     m_elements[1] = m10;
     m_elements[2] = m20;
@@ -43,20 +43,20 @@ Matrix3f::Matrix3f(const Vector3f& v0, const Vector3f& v1, const Vector3f& v2, b
 }
 
 Matrix3f::Matrix3f(const Matrix3f& rm) {
-    memcpy(m_elements, rm.m_elements, 9 * sizeof(float));
+    memcpy(m_elements, rm.m_elements, 9 * sizeof(double));
 }
 
 Matrix3f& Matrix3f::operator=(const Matrix3f& rm) {
     if (this != &rm)
-        memcpy(m_elements, rm.m_elements, 9 * sizeof(float));
+        memcpy(m_elements, rm.m_elements, 9 * sizeof(double));
     return *this;
 }
 
-const float& Matrix3f::operator()(int i, int j) const {
+const double& Matrix3f::operator()(int i, int j) const {
     return m_elements[j * 3 + i];
 }
 
-float& Matrix3f::operator()(int i, int j) {
+double& Matrix3f::operator()(int i, int j) {
     return m_elements[j * 3 + i];
 }
 
@@ -108,7 +108,7 @@ void Matrix3f::setSubmatrix2x2(int i0, int j0, const Matrix2f& m) {
             (*this)(i + i0, j + j0) = m(i, j);
 }
 
-float Matrix3f::determinant() const {
+double Matrix3f::determinant() const {
     return Matrix3f::determinant3x3(
         m_elements[0], m_elements[3], m_elements[6],
         m_elements[1], m_elements[4], m_elements[7],
@@ -116,32 +116,32 @@ float Matrix3f::determinant() const {
     );
 }
 
-Matrix3f Matrix3f::inverse(bool* pbIsSingular, float epsilon) const {
-    float m00 = m_elements[0];
-    float m10 = m_elements[1];
-    float m20 = m_elements[2];
+Matrix3f Matrix3f::inverse(bool* pbIsSingular, double epsilon) const {
+    double m00 = m_elements[0];
+    double m10 = m_elements[1];
+    double m20 = m_elements[2];
 
-    float m01 = m_elements[3];
-    float m11 = m_elements[4];
-    float m21 = m_elements[5];
+    double m01 = m_elements[3];
+    double m11 = m_elements[4];
+    double m21 = m_elements[5];
 
-    float m02 = m_elements[6];
-    float m12 = m_elements[7];
-    float m22 = m_elements[8];
+    double m02 = m_elements[6];
+    double m12 = m_elements[7];
+    double m22 = m_elements[8];
 
-    float cofactor00 =  Matrix2f::determinant2x2(m11, m12, m21, m22);
-    float cofactor01 = -Matrix2f::determinant2x2(m10, m12, m20, m22);
-    float cofactor02 =  Matrix2f::determinant2x2(m10, m11, m20, m21);
+    double cofactor00 =  Matrix2f::determinant2x2(m11, m12, m21, m22);
+    double cofactor01 = -Matrix2f::determinant2x2(m10, m12, m20, m22);
+    double cofactor02 =  Matrix2f::determinant2x2(m10, m11, m20, m21);
 
-    float cofactor10 = -Matrix2f::determinant2x2(m01, m02, m21, m22);
-    float cofactor11 =  Matrix2f::determinant2x2(m00, m02, m20, m22);
-    float cofactor12 = -Matrix2f::determinant2x2(m00, m01, m20, m21);
+    double cofactor10 = -Matrix2f::determinant2x2(m01, m02, m21, m22);
+    double cofactor11 =  Matrix2f::determinant2x2(m00, m02, m20, m22);
+    double cofactor12 = -Matrix2f::determinant2x2(m00, m01, m20, m21);
 
-    float cofactor20 =  Matrix2f::determinant2x2(m01, m02, m11, m12);
-    float cofactor21 = -Matrix2f::determinant2x2(m00, m02, m10, m12);
-    float cofactor22 =  Matrix2f::determinant2x2(m00, m01, m10, m11);
+    double cofactor20 =  Matrix2f::determinant2x2(m01, m02, m11, m12);
+    double cofactor21 = -Matrix2f::determinant2x2(m00, m02, m10, m12);
+    double cofactor22 =  Matrix2f::determinant2x2(m00, m01, m10, m11);
 
-    float determinant = m00 * cofactor00 + m01 * cofactor01 + m02 * cofactor02;
+    double determinant = m00 * cofactor00 + m01 * cofactor01 + m02 * cofactor02;
     
     bool isSingular = (fabs(determinant) < epsilon);
     if (isSingular) {
@@ -152,7 +152,7 @@ Matrix3f Matrix3f::inverse(bool* pbIsSingular, float epsilon) const {
         if (pbIsSingular != NULL)
             *pbIsSingular = false;
 
-        float reciprocalDeterminant = 1.0f / determinant;
+        double reciprocalDeterminant = 1.0 / determinant;
 
         return Matrix3f(
             cofactor00 * reciprocalDeterminant, cofactor10 * reciprocalDeterminant, cofactor20 * reciprocalDeterminant,
@@ -163,7 +163,7 @@ Matrix3f Matrix3f::inverse(bool* pbIsSingular, float epsilon) const {
 }
 
 void Matrix3f::transpose() {
-    float temp;
+    double temp;
 
     for (int i = 0; i < 2; ++i)
         for (int j = i + 1; j < 3; ++j) {
@@ -182,7 +182,7 @@ Matrix3f Matrix3f::transposed() const {
     return out;
 }
 
-Matrix3f::operator float*() {
+Matrix3f::operator double*() {
     return m_elements;
 }
 
@@ -194,9 +194,9 @@ void Matrix3f::print() {
 }
 
 // Static method
-float Matrix3f::determinant3x3(float m00, float m01, float m02,
-                               float m10, float m11, float m12,
-                               float m20, float m21, float m22) {
+double Matrix3f::determinant3x3(double m00, double m01, double m02,
+                               double m10, double m11, double m12,
+                               double m20, double m21, double m22) {
     return (
           m00 * (m11 * m22 - m12 * m21)
         - m01 * (m10 * m22 - m12 * m20)
@@ -226,9 +226,9 @@ Matrix3f Matrix3f::identity() {
 
 
 // Static method
-Matrix3f Matrix3f::rotateX(float radians) {
-    float c = cos(radians);
-    float s = sin(radians);
+Matrix3f Matrix3f::rotateX(double radians) {
+    double c = cos(radians);
+    double s = sin(radians);
 
     return Matrix3f(
         1, 0, 0,
@@ -238,9 +238,9 @@ Matrix3f Matrix3f::rotateX(float radians) {
 }
 
 // Static method
-Matrix3f Matrix3f::rotateY(float radians) {
-    float c = cos(radians);
-    float s = sin(radians);
+Matrix3f Matrix3f::rotateY(double radians) {
+    double c = cos(radians);
+    double s = sin(radians);
 
     return Matrix3f(
         c, 0, s,
@@ -250,9 +250,9 @@ Matrix3f Matrix3f::rotateY(float radians) {
 }
 
 // Static method
-Matrix3f Matrix3f::rotateZ(float radians) {
-    float c = cos(radians);
-    float s = sin(radians);
+Matrix3f Matrix3f::rotateZ(double radians) {
+    double c = cos(radians);
+    double s = sin(radians);
 
     return Matrix3f(
         c, -s, 0,
@@ -262,7 +262,7 @@ Matrix3f Matrix3f::rotateZ(float radians) {
 }
 
 // Static method
-Matrix3f Matrix3f::scaling(float sx, float sy, float sz) {
+Matrix3f Matrix3f::scaling(double sx, double sy, double sz) {
     return Matrix3f(
         sx, 0, 0,
         0, sy, 0,
@@ -271,7 +271,7 @@ Matrix3f Matrix3f::scaling(float sx, float sy, float sz) {
 }
 
 // Static method
-Matrix3f Matrix3f::uniformScaling(float s) {
+Matrix3f Matrix3f::uniformScaling(double s) {
     return Matrix3f(
         s, 0, 0,
         0, s, 0,
@@ -280,20 +280,20 @@ Matrix3f Matrix3f::uniformScaling(float s) {
 }
 
 // Static method
-Matrix3f Matrix3f::rotation(const Vector3f& rDirection, float radians) {
+Matrix3f Matrix3f::rotation(const Vector3f& rDirection, double radians) {
     Vector3f normalizedDirection = rDirection.normalized();
     
-    float cosTheta = cos(radians);
-    float sinTheta = sin(radians);
+    double cosTheta = cos(radians);
+    double sinTheta = sin(radians);
 
-    float x = normalizedDirection.x();
-    float y = normalizedDirection.y();
-    float z = normalizedDirection.z();
+    double x = normalizedDirection.x();
+    double y = normalizedDirection.y();
+    double z = normalizedDirection.z();
 
     return Matrix3f(
-        x * x * (1.0f - cosTheta) + cosTheta,      y * x * (1.0f - cosTheta) - z * sinTheta,    z * x * (1.0f - cosTheta) + y * sinTheta,
-        x * y * (1.0f - cosTheta) + z * sinTheta, y * y * (1.0f - cosTheta) + cosTheta,        z * y * (1.0f - cosTheta) - x * sinTheta,
-        x * z * (1.0f - cosTheta) - y * sinTheta, y * z * (1.0f - cosTheta) + x * sinTheta,    z * z * (1.0f - cosTheta) + cosTheta
+        x * x * (1.0 - cosTheta) + cosTheta,      y * x * (1.0 - cosTheta) - z * sinTheta,    z * x * (1.0 - cosTheta) + y * sinTheta,
+        x * y * (1.0 - cosTheta) + z * sinTheta, y * y * (1.0 - cosTheta) + cosTheta,        z * y * (1.0 - cosTheta) - x * sinTheta,
+        x * z * (1.0 - cosTheta) - y * sinTheta, y * z * (1.0 - cosTheta) + x * sinTheta,    z * z * (1.0 - cosTheta) + cosTheta
     );
 }
 
@@ -301,23 +301,23 @@ Matrix3f Matrix3f::rotation(const Vector3f& rDirection, float radians) {
 Matrix3f Matrix3f::rotation(const Quat4f& rq) {
     Quat4f q = rq.normalized();
 
-    float xx = q.x() * q.x();
-    float yy = q.y() * q.y();
-    float zz = q.z() * q.z();
+    double xx = q.x() * q.x();
+    double yy = q.y() * q.y();
+    double zz = q.z() * q.z();
 
-    float xy = q.x() * q.y();
-    float zw = q.z() * q.w();
+    double xy = q.x() * q.y();
+    double zw = q.z() * q.w();
 
-    float xz = q.x() * q.z();
-    float yw = q.y() * q.w();
+    double xz = q.x() * q.z();
+    double yw = q.y() * q.w();
 
-    float yz = q.y() * q.z();
-    float xw = q.x() * q.w();
+    double yz = q.y() * q.z();
+    double xw = q.x() * q.w();
 
     return Matrix3f(
-        1.0f - 2.0f * (yy + zz),        2.0f * (xy - zw),                2.0f * (xz + yw),
-        2.0f * (xy + zw),                1.0f - 2.0f * (xx + zz),        2.0f * (yz - xw),
-        2.0f * (xz - yw),                2.0f * (yz + xw),                1.0f - 2.0f * (xx + yy)
+        1.0 - 2.0 * (yy + zz),        2.0 * (xy - zw),                2.0 * (xz + yw),
+        2.0 * (xy + zw),                1.0 - 2.0 * (xx + zz),        2.0 * (yz - xw),
+        2.0 * (xz - yw),                2.0 * (yz + xw),                1.0 - 2.0 * (xx + yy)
     );
 }
 

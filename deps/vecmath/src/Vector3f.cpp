@@ -21,25 +21,25 @@ const Vector3f Vector3f::RIGHT = Vector3f(1, 0, 0);
 // Static method
 const Vector3f Vector3f::FORWARD = Vector3f(0, 0, -1);
 
-Vector3f::Vector3f(float f) {
+Vector3f::Vector3f(double f) {
     m_elements[0] = f;
     m_elements[1] = f;
     m_elements[2] = f;
 }
 
-Vector3f::Vector3f(float x, float y, float z) {
+Vector3f::Vector3f(double x, double y, double z) {
     m_elements[0] = x;
     m_elements[1] = y;
     m_elements[2] = z;
 }
 
-Vector3f::Vector3f(const Vector2f& xy, float z) {
+Vector3f::Vector3f(const Vector2f& xy, double z) {
     m_elements[0] = xy.x();
     m_elements[1] = xy.y();
     m_elements[2] = z;
 }
 
-Vector3f::Vector3f(float x, const Vector2f& yz) {
+Vector3f::Vector3f(double x, const Vector2f& yz) {
     m_elements[0] = x;
     m_elements[1] = yz.x();
     m_elements[2] = yz.y();
@@ -60,35 +60,35 @@ Vector3f& Vector3f::operator=(const Vector3f& rv) {
     return *this;
 }
 
-const float& Vector3f::operator[](int i) const {
+const double& Vector3f::operator[](int i) const {
     return m_elements[i];
 }
 
-float& Vector3f::operator[](int i) {
+double& Vector3f::operator[](int i) {
     return m_elements[i];
 }
 
-float& Vector3f::x() {
+double& Vector3f::x() {
     return m_elements[0];
 }
 
-float& Vector3f::y() {
+double& Vector3f::y() {
     return m_elements[1];
 }
 
-float& Vector3f::z() {
+double& Vector3f::z() {
     return m_elements[2];
 }
 
-float Vector3f::x() const {
+double Vector3f::x() const {
     return m_elements[0];
 }
 
-float Vector3f::y() const {
+double Vector3f::y() const {
     return m_elements[1];
 }
 
-float Vector3f::z() const {
+double Vector3f::z() const {
     return m_elements[2];
 }
 
@@ -116,11 +116,11 @@ Vector3f Vector3f::zxy() const {
     return Vector3f(m_elements[2], m_elements[0], m_elements[1]);
 }
 
-float Vector3f::length() const {
+double Vector3f::length() const {
     return sqrt(m_elements[0] * m_elements[0] + m_elements[1] * m_elements[1] + m_elements[2] * m_elements[2]);
 }
 
-float Vector3f::squaredLength() const {
+double Vector3f::squaredLength() const {
     return (
         m_elements[0] * m_elements[0] +
         m_elements[1] * m_elements[1] +
@@ -129,14 +129,14 @@ float Vector3f::squaredLength() const {
 }
 
 void Vector3f::normalize() {
-    float norm = length();
+    double norm = length();
     m_elements[0] /= norm;
     m_elements[1] /= norm;
     m_elements[2] /= norm;
 }
 
 Vector3f Vector3f::normalized() const {
-    float norm = length();
+    double norm = length();
     return Vector3f(
         m_elements[0] / norm,
         m_elements[1] / norm,
@@ -157,11 +157,11 @@ void Vector3f::negate() {
     m_elements[2] = -m_elements[2];
 }
 
-Vector3f::operator const float*() const {
+Vector3f::operator const double*() const {
     return m_elements;
 }
 
-Vector3f::operator float*() {
+Vector3f::operator double*() {
     return m_elements;
 }
 
@@ -184,7 +184,7 @@ Vector3f& Vector3f::operator-=(const Vector3f& v) {
     return *this;
 }
 
-Vector3f& Vector3f::operator*=(float f) {
+Vector3f& Vector3f::operator*=(double f) {
     m_elements[0] *= f;
     m_elements[1] *= f;
     m_elements[2] *= f;
@@ -192,7 +192,7 @@ Vector3f& Vector3f::operator*=(float f) {
 }
 
 // Static method
-float Vector3f::dot(const Vector3f& v0, const Vector3f& v1) {
+double Vector3f::dot(const Vector3f& v0, const Vector3f& v1) {
     return v0[0] * v1[0] + v0[1] * v1[1] + v0[2] * v1[2];
 }
 
@@ -206,12 +206,12 @@ Vector3f Vector3f::cross(const Vector3f& v0, const Vector3f& v1) {
 }
 
 // Static method
-Vector3f Vector3f::lerp(const Vector3f& v0, const Vector3f& v1, float alpha) {
+Vector3f Vector3f::lerp(const Vector3f& v0, const Vector3f& v1, double alpha) {
     return alpha * (v1 - v0) + v0;
 }
 
 // Static method
-Vector3f Vector3f::cubicInterpolate(const Vector3f& p0, const Vector3f& p1, const Vector3f& p2, const Vector3f& p3, float t) {
+Vector3f Vector3f::cubicInterpolate(const Vector3f& p0, const Vector3f& p1, const Vector3f& p2, const Vector3f& p3, double t) {
     // Geometric construction:
     //            t
     //   (t+1)/2     t/2
@@ -223,8 +223,8 @@ Vector3f Vector3f::cubicInterpolate(const Vector3f& p0, const Vector3f& p1, cons
     Vector3f p2p3 = Vector3f::lerp(p2, p3, t - 1);
 
     // Middle level
-    Vector3f p0p1_p1p2 = Vector3f::lerp(p0p1, p1p2, 0.5f * (t + 1));
-    Vector3f p1p2_p2p3 = Vector3f::lerp(p1p2, p2p3, 0.5f * t);
+    Vector3f p0p1_p1p2 = Vector3f::lerp(p0p1, p1p2, 0.5 * (t + 1));
+    Vector3f p1p2_p2p3 = Vector3f::lerp(p1p2, p2p3, 0.5 * t);
 
     // Top level
     return Vector3f::lerp(p0p1_p1p2, p1p2_p2p3, t);
@@ -250,15 +250,15 @@ Vector3f operator-(const Vector3f& v) {
     return Vector3f(-v[0], -v[1], -v[2]);
 }
 
-Vector3f operator*(float f, const Vector3f& v) {
+Vector3f operator*(double f, const Vector3f& v) {
     return Vector3f(v[0] * f, v[1] * f, v[2] * f);
 }
 
-Vector3f operator*(const Vector3f& v, float f) {
+Vector3f operator*(const Vector3f& v, double f) {
     return Vector3f(v[0] * f, v[1] * f, v[2] * f);
 }
 
-Vector3f operator/(const Vector3f& v, float f) {
+Vector3f operator/(const Vector3f& v, double f) {
     return Vector3f(v[0] / f, v[1] / f, v[2] / f);
 }
 
