@@ -8,7 +8,7 @@
  * so I need to deirectly use the one created by other students and try my best to understand it.
  */
 class Rectangle : public Object3D {
-private:
+protected:
     Vector3f URF; // Up Right Front
     Vector3f LLB; // Low Left Behind
 

@@ -35,7 +35,10 @@ SET(NAIVE_RAY_TRACER_INCLUDES
     include/geometry/plane.hpp
     include/geometry/rectangle.hpp
     include/geometry/transform.hpp
-    include/geometry/triangle.hpp)
+    include/geometry/triangle.hpp
+    include/geometry/bbox.hpp
+    include/geometry/mesh.hpp
+    include/utils/octree.hpp)
 
 SET(CMAKE_CXX_STANDARD 11)
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)

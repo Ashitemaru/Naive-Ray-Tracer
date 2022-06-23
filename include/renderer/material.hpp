@@ -243,6 +243,125 @@ public:
     }
 };
 
+// TODO: Maybe buggy
 class General : public Material {
-    // TODO
+protected:
+	Vector3f Ka;	// Ambient color
+	Vector3f Kd;	// Diffuse color
+	Vector3f Ks;	// Specular color
+	double Ns;		// Specular highlights
+	double Ni;	    // Optical density
+	double d;	    // Dissolve
+
+public:
+	General(const Vector3f& ka, const Vector3f& kd, const Vector3f& ks, int ns, double ni, double d) {
+		this->Ka = ka;
+		this->Kd = kd;
+		this->Ks = ks;
+		this->Ns = ns;
+		this->Ni = ni;
+		this->d = d;
+	}
+
+	General(
+        const Vector3f& ka,
+        const Vector3f& kd,
+        const Vector3f& ks,
+        int ns,
+        double ni,
+        double d,
+        const char *filename
+    ) {
+		this->Ka = ka;
+		this->Kd = kd;
+		this->Ks = ks;
+		this->Ns = ns;
+		this->Ni = ni;
+		this->d = d;
+		this->texture = Image::loadBMP(filename);
+	}
+
+	virtual Vector3f shade(const Vector3f& in, const Vector3f& out, bool fromLight) const override {
+		if (in[2] * out[2] < 0) return Vector3f::ZERO;
+
+		double cos_ = Vector3f::dot(out, Trans::reflect(in, Vector3f(0, 0, 1)));
+		cos_ = (cos_ > 0) ? cos_ : 0;
+
+		// Modified Phong model
+		return Kd / M_PI + Ks * pow(cos_, Ns) * (2 + Ns) / (2 * M_PI) ;
+	}
+
+	virtual IntersectResult getOutputRay(const Vector3f &in, bool fromLight, RandomEngine &reng) const override {
+		if (reng.getUniformDouble(0, 1) < d) { // Reflect
+			Vector3f total = Kd + Ks;
+
+			double probR = std::max(total[0], std::max(total[1], total[2]));
+			probR = (probR > 1.)? 1. : probR;
+			double probD = probR * (Kd[0] + Kd[1] + Kd[2]) / (total[0] + total[1] + total[2]);
+			double posix = reng.getUniformDouble(0, 1);
+
+			if (posix < probD) { // Diffuse
+				double phi = 2 * M_PI * reng.getUniformDouble(0, 1);
+				double t = std::sqrt(reng.getUniformDouble(0, 1));
+				
+                Vector3f out = Vector3f(
+                    std::sqrt(1 - t * t) * std::cos(phi),
+                    std::sqrt(1 - t * t) * std::sin(phi),
+                    t
+                );
+
+                return IntersectResult {
+                    .x = Kd / M_PI,
+                    .out = out,
+                    .pdf = t * probR / M_PI,
+                    .isDiffuse = true,
+                };
+			} else if (posix < probR) { // Reflect
+                Vector3f out = Trans::reflect(in, Vector3f(0, 0, 1));
+
+                return IntersectResult {
+                    .x = Ks / (std::abs(out[2]) + 1e-6),
+                    .out = out,
+                    .pdf = probR,
+                    .isDiffuse = false,
+                };
+			} else { // Absorbed
+                return IntersectResult {
+                    .x = Vector3f::ZERO,
+                    .out = Vector3f::ZERO,
+                    .pdf = 1.,
+                    .isDiffuse = true,
+                };
+			}
+		} else { // Refract
+			double scale = Ni * Ni;
+            Vector3f out;
+			if (in[2] >= 0) {
+				out = Trans::refract(in, Vector3f(0, 0, 1), 1., Ni);
+				scale = 1. / scale;
+			} else {
+				out = Trans::refract(in, Vector3f(0, 0, -1), Ni, 1.);
+			}
+
+			if (out == Vector3f::ZERO) {
+				out = Trans::reflect(in, Vector3f(0, 0, 1));
+                return IntersectResult {
+                    .x = Ks / (std::abs(out[2]) + 1e-6),
+                    .out = out,
+                    .pdf = 1.,
+                    .isDiffuse = false,
+                };
+			} else {
+                return IntersectResult {
+                    .x = fromLight
+                        ? Ks / (std::abs(out[2]) + 1e-6)
+                        : scale * Ks / (std::abs(out[2]) + 1e-6),
+                    .out = out,
+                    .pdf = 1.,
+                    .isDiffuse = false,
+                };
+            }
+		}
+	}
+
 };

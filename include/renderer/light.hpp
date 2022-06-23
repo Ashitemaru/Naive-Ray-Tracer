@@ -48,19 +48,19 @@ public:
     }
 
     virtual RaySampleResult sampleRay(RandomEngine &reng) const override {
-		auto pair = obj->samplePoint(reng);
+        auto pair = obj->samplePoint(reng);
         HitSurface surface = pair.first;
         double pdf = pair.second;
 
         Vector3f x = surface.normal;
-		Vector3f y = Trans::generateVertical(x);
-		Vector3f z = Vector3f::cross(x, y).normalized();
+        Vector3f y = Trans::generateVertical(x);
+        Vector3f z = Vector3f::cross(x, y).normalized();
 
-		double phi = 2 * M_PI * reng.getUniformDouble(0, 1);
-		double t = std::sqrt(reng.getUniformDouble(0, 1));
-		pdf *= t / M_PI;
+        double phi = 2 * M_PI * reng.getUniformDouble(0, 1);
+        double t = std::sqrt(reng.getUniformDouble(0, 1));
+        pdf *= t / M_PI;
 
-		Vector3f out = Vector3f(std::sqrt(1 - t * t) * std::cos(phi), std::sqrt(1 - t * t) * std::sin(phi), t);
+        Vector3f out = Vector3f(std::sqrt(1 - t * t) * std::cos(phi), std::sqrt(1 - t * t) * std::sin(phi), t);
         return RaySampleResult {
             .ray = Ray {
                 surface.position,
@@ -94,9 +94,9 @@ public:
     }
 
     virtual RaySampleResult sampleRay(RandomEngine &reng) const override {
-		double phi = 2 * M_PI * reng.getUniformDouble(0, 1);
-		double z = reng.getUniformDouble(-1, 1);
-		Vector3f out = Vector3f(
+        double phi = 2 * M_PI * reng.getUniformDouble(0, 1);
+        double z = reng.getUniformDouble(-1, 1);
+        Vector3f out = Vector3f(
             std::sqrt(1 - z * z) * std::cos(phi),
             std::sqrt(1 - z * z) * std::sin(phi),
             z
@@ -138,20 +138,20 @@ public:
     }
 
     virtual RaySampleResult sampleRay(RandomEngine &reng) const override {
-		double threshold = std::cos(angle);
+        double threshold = std::cos(angle);
 
-		double phi = 2 * M_PI * reng.getUniformDouble(0, 1);
-		double z = (1 - threshold) * reng.getUniformDouble(0, 1) + threshold;
-		Vector3f out = Vector3f(
+        double phi = 2 * M_PI * reng.getUniformDouble(0, 1);
+        double z = (1 - threshold) * reng.getUniformDouble(0, 1) + threshold;
+        Vector3f out = Vector3f(
             std::sqrt(1 - z * z) * std::cos(phi),
             std::sqrt(1 - z * z) * std::sin(phi),
             z
         );
 
         Vector3f x = direction;
-		Vector3f y = Trans::generateVertical(x);
-		Vector3f z = Vector3f::cross(x, y);
-		out = Trans::localToWorld(y, z, x, out);
+        Vector3f y = Trans::generateVertical(x);
+        Vector3f z = Vector3f::cross(x, y);
+        out = Trans::localToWorld(y, z, x, out);
 
         return RaySampleResult {
             .ray = Ray { pos, out },
