@@ -28,7 +28,10 @@ SET(NAIVE_RAY_TRACER_INCLUDES
     include/renderer/material.hpp
     include/utils/kdtree.hpp
     include/photon/photon.hpp
-    include/photon/photon_map.hpp)
+    include/photon/photon_map.hpp
+    include/renderer/renderer.hpp
+    include/renderer/light.hpp
+    include/utils/trans.hpp)
 
 SET(CMAKE_CXX_STANDARD 11)
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)

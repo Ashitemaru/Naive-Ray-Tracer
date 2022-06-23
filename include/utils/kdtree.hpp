@@ -114,12 +114,12 @@ private:
     }
 
 public:
-    KDTree(Photon *photon_list, int len) {
+    KDTree(Photon *photonList, int len) {
 #pragma omp parallel
 {
 #pragma omp single
 {
-        this->root = this->build(photon_list, len, 0);
+        this->root = this->build(photonList, len, 0);
 }
 }
     }

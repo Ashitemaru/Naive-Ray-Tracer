@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ray.hpp"
-#include "hit.hpp"
+#include "renderer/ray.hpp"
+#include "renderer/hit.hpp"
 
 class Geometry {
 public:

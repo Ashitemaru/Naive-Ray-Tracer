@@ -223,6 +223,52 @@ public:
         fclose(file);
     }
 
+    static Image *loadBMP(const char *filename) {
+        assert(filename != NULL);
+
+        // Must end in .bmp
+        const char *ext = &filename[strlen(filename) - 4];
+        assert(!strcmp(ext, ".bmp"));
+
+        FILE *file = fopen(filename,"rb");
+        assert(file);
+
+        unsigned char bmp_file_header[14] = { 'B', 'M', 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 0 };
+        unsigned char bmp_info_header[40] = { 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 24, 0 };
+        unsigned char bmp_pad[3] = { 0, 0, 0 };
+
+        memset(bmp_file_header, 0, sizeof(bmp_file_header));
+        memset(bmp_info_header, 0, sizeof(bmp_info_header));
+
+        fread(bmp_file_header, sizeof(bmp_file_header), 1, file);
+        fread(bmp_info_header, sizeof(bmp_info_header), 1, file);
+
+        assert(bmp_file_header[0] == 'B');
+        assert(bmp_file_header[1] == 'M');
+
+        assert(bmp_info_header[14] == 24 || bmp_info_header[14] == 32);
+
+        int w = (bmp_info_header[4] + (bmp_info_header[5] << 8) + (bmp_info_header[6] << 16) + (bmp_info_header[7] << 24));
+        int h = (bmp_info_header[8] + (bmp_info_header[9] << 8) + (bmp_info_header[10] << 16) + (bmp_info_header[11] << 24));
+
+        Image* answer = new Image(w, h);
+        int bytesPerLine = (3 * (w + 1) / 4) * 4;
+
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                unsigned char rgb[3];
+                // Note reversed order: b, g, r
+                fread(rgb, 3, 1, file);
+                Vector3f color((double) rgb[2] / 255., (double) rgb[1] / 255., (double) rgb[0] / 255.);
+                answer->setPixel(j, i, color);
+            }
+            fread(bmp_pad, 1, bytesPerLine - 3 * w, file);
+        }
+
+        fclose(file);
+        return answer;
+    }
+
     int saveBMP(const char *filename) {
         int i, j, ipos;
         int bytesPerLine;

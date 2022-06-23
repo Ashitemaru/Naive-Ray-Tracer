@@ -4,8 +4,8 @@
 #include <cmath>
 #include <float.h>
 
-#include "random_engine.hpp"
-#include "ray.hpp"
+#include "utils/random_engine.hpp"
+#include "renderer/ray.hpp"
 
 class Camera {
 protected:

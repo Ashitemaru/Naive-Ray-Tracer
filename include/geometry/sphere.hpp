@@ -1,6 +1,7 @@
 #pragma once
 
-#include "geometry.hpp"
+#include "geometry/geometry.hpp"
+
 #include <vecmath.h>
 
 class Sphere : public Geometry {

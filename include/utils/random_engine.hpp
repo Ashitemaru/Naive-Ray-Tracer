@@ -24,6 +24,8 @@ public:
 
     unsigned int getSeed() { return this->seed; }
 
+    void setSeed(unsigned int _seed) { this->seed = _seed; }
+
     double getUniformDouble(double min, double max) {
         std::uniform_real_distribution<double> urd(min, max);
         return urd(this->mt);
