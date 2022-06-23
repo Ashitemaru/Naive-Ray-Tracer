@@ -29,4 +29,6 @@ public:
     void saveTexture(const char *filename) const {
         this->texture->saveBMP(filename);
     }
+
+    virtual Vector3f shade(const Vector3f &in, const Vector3f &out, bool from_light) const = 0;
 };

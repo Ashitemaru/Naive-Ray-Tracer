@@ -19,13 +19,13 @@ SET(NAIVE_RAY_TRACER_SOURCES
 SET(NAIVE_RAY_TRACER_INCLUDES
     include/geometry/geometry.hpp
     include/geometry/sphere.hpp
-    include/hit.hpp
-    include/ray.hpp
-    include/scene_parser.hpp
-    include/camera.hpp
-    include/random_engine.hpp
-    include/image.hpp
-    include/material.hpp
+    include/renderer/hit.hpp
+    include/renderer/ray.hpp
+    include/utils/scene_parser.hpp
+    include/renderer/camera.hpp
+    include/utils/random_engine.hpp
+    include/utils/image.hpp
+    include/renderer/material.hpp
     include/utils/kdtree.hpp
     include/photon/photon.hpp
     include/photon/photon_map.hpp)
