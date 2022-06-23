@@ -36,9 +36,9 @@ public:
 
     ~Image() { delete[] data; }
 
-    int height() { return this->height; }
+    int getHeight() { return this->height; }
 
-    int width() { return this->width; }
+    int getWidth() { return this->width; }
 
     const Vector3f &getPixel(int x, int y) const {
         assert(x >= 0 && x < width);
