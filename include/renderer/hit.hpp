@@ -5,40 +5,53 @@
 #include "renderer/material.hpp"
 
 struct HitSurface {
-	Vector3f position;
-	Vector3f normal;
-	Vector3f geonormal;
-	Vector2f cord;
-	bool hasTexture;
+    Vector3f position;
+    Vector3f normal;
+    Vector3f geoNormal;
+    Vector2f cord;
+    bool hasTexture;
 
-	HitSurface() { }
-	HitSurface(
+    HitSurface() { }
+    HitSurface(
         const Vector3f &pos,
         const Vector3f &norm,
         const Vector3f &geonorm = Vector3f::ZERO,
         const Vector2f &cord = Vector2f::ZERO,
         bool flag = false
     ) {
-		this->position = pos;
-		this->normal = norm;
-		this->geonormal = (geonorm == Vector3f::ZERO) ? norm : geonorm;
-		this->cord = cord;
-		this->hasTexture = flag;
-	}
+        this->position = pos;
+        this->normal = norm;
+        this->geoNormal = (geonorm == Vector3f::ZERO) ? norm : geonorm;
+        this->cord = cord;
+        this->hasTexture = flag;
+    }
 };
 
 class Hit {
 public:
     double t;
-    Vector3f n; // The normal vec of the hit point
-    Vector2f uv;
+    Material *material;
+    HitSurface surface;
 
 public:
-    Material *getMaterial() {
-        // TODO
+    Hit() {
+        t = INFINITY;
+        material = nullptr;
     }
 
-    HitSurface &getSurface() {
-        // TODO
+    Hit(double _t, Material *_material, const HitSurface &_surface) {
+        t = _t;
+        material = _material;
+        surface = _surface;
     }
+
+    Hit(const Hit &h) = default;
+
+    void set(double _t, Material *_material, const HitSurface &_surface) {
+        t = _t;
+        material = _material;
+        surface = _surface;
+    }
+
+    ~Hit() = default;
 };

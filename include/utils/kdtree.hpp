@@ -1,8 +1,5 @@
 #pragma once
 
-/**
- * @ref: https://github.com/Numendacil/Graphics/blob/master/include/photon_map.hpp
- */
 #include <functional>
 #include <algorithm>
 #include <omp.h>

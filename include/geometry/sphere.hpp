@@ -1,28 +1,47 @@
 #pragma once
 
-#include "geometry/geometry.hpp"
+#include "geometry/object3d.hpp"
 
-#include <vecmath.h>
-
-class Sphere : public Geometry {
+class Sphere : public Object3D {
 private:
-    Vector3f c; // Center of the sphere
-    double r; // Radius of the sphere
+    Vector3f center; // Center of the sphere
+    double radius; // Radius of the sphere
 
 public:
-    virtual bool hit(const Ray &ray, Hit &h, double tmin) override {
-        Vector3f oc_vec = c - ray.o;
-        // H is the foot of vertical line from center to the ray
-        double oh = Vector3f::dot(oc_vec, ray.d);
-        double oc = oc_vec.length();
-        double det = oh * oh + r * r - oc * oc;
+    Sphere() {
+        center = Vector3f(0., 0., 0.);
+        radius = 1.;
+    }
 
-        // The distance from center to the ray is greater than radius, not hit
-        if (det < 0.0) {
-            return false;
+    Sphere(const Vector3f &_c, double _r) {
+        center = _c;
+        radius = _r;
+    }
+
+    virtual ~Sphere() override = default;
+
+    virtual bool intersect(const Ray &r, Hit &h, double tmin) const override {
+        Vector3f l = center - r.o;
+        double r_sqr = radius * radius;
+
+        double tp = Vector3f::dot(l, r.d.normalized());
+        double d_sqr = l.squaredLength() - tp * tp;
+
+        if (d_sqr > r_sqr) return false;
+
+        double t = 0.;
+        if (l.squaredLength() > r_sqr) {
+            if (tp <= 0) return false;
+            t = tp - sqrt(r_sqr - d_sqr);
         } else {
-            // P is the intersection point of ray & sphere
-            double hp = sqrt(det);
+            t = tp + sqrt(r_sqr - d_sqr);
         }
+
+        if (t < tmin || t >= h.t) return false;
+
+        h.set(t, material, HitSurface {
+            r.at(t), (r.at(t) - center).normalized()
+        });
+        return true;
     }
 };

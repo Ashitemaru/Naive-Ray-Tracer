@@ -59,8 +59,8 @@ private:
 
                 // TODO: Randomly decay the photon
                 if (dep > 0) {
-				    double prob = std::max(power[0], std::max(power[1], power[2]));
-				    prob = prob > 1. ? 1. : prob;
+                    double prob = std::max(power[0], std::max(power[1], power[2]));
+                    prob = prob > 1. ? 1. : prob;
 
                     if (reng.getUniformDouble(0, 1) >= prob) break;
                     power = power / prob;
@@ -99,12 +99,12 @@ private:
                 }
                 if (surface.HasTexture && material->HasTexture())
                 {
-                    co = co * material->GetTexture(surface.texcoord);
+                    co = co * material->GetTexture(surface.cord);
                 }
                 out = RelToAbs(tangent, binormal, surface.normal, out);
                 ray = Ray(surface.position, out);
                 power = power * co / std::max(pdf, 1e-6)  
-                    * std::abs(Vector3f::dot(out, surface.geonormal)) * std::abs(Vector3f::dot(in, surface.normal)) / std::abs(Vector3f::dot(in, surface.geonormal));
+                    * std::abs(Vector3f::dot(out, surface.geoNormal)) * std::abs(Vector3f::dot(in, surface.normal)) / std::abs(Vector3f::dot(in, surface.geoNormal));
                     */
             }
         }

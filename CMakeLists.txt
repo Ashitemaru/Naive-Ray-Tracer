@@ -13,11 +13,10 @@ ENDIF ()
 ADD_SUBDIRECTORY(deps/vecmath)
 
 SET(NAIVE_RAY_TRACER_SOURCES
-    src/main.cpp
-    src/utils.cpp)
+    src/main.cpp)
 
 SET(NAIVE_RAY_TRACER_INCLUDES
-    include/geometry/geometry.hpp
+    include/geometry/group.hpp
     include/geometry/sphere.hpp
     include/renderer/hit.hpp
     include/renderer/ray.hpp
@@ -31,7 +30,12 @@ SET(NAIVE_RAY_TRACER_INCLUDES
     include/photon/photon_map.hpp
     include/renderer/renderer.hpp
     include/renderer/light.hpp
-    include/utils/trans.hpp)
+    include/utils/trans.hpp
+    include/geometry/object3d.hpp
+    include/geometry/plane.hpp
+    include/geometry/rectangle.hpp
+    include/geometry/transform.hpp
+    include/geometry/triangle.hpp)
 
 SET(CMAKE_CXX_STANDARD 11)
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
