@@ -39,43 +39,19 @@ private:
         now->direction = direction;
         now->photon = &base[m];
 
-        const int maxParaLevel = (int) std::log2(/* omp_get_max_threads() */ 12);
+        const int maxParaLevel = (int) std::log2(omp_get_max_threads());
         if (depth < maxParaLevel + 1) {
-// #pragma omp task firstprivate(now)
+#pragma omp task firstprivate(now)
             now->left = this->build(base, m, depth + 1);
-// #pragma omp task firstprivate(now)
+#pragma omp task firstprivate(now)
             now->right = this->build(base + m + 1, len - m - 1, depth + 1);
+#pragma omp taskwait
         } else {
             now->left = this->build(base, m, depth + 1);
             now->right = this->build(base + m + 1, len - m - 1, depth + 1);
         }
 
         return now;
-    }
-
-    void searchKNearest(
-        PhotonNode *now,
-        std::priority_queue<std::pair<double, Photon *>> &result,
-        const Vector3f &target,
-        int k
-    ) {
-        if (now == nullptr) return;
-
-        double dn_sq = (target - now->photon->pos).squaredLength();
-        result.emplace(dn_sq, now->photon);
-
-        if ((int) result.size() > k) result.pop();
-        double directionDiff = target[now->direction] - now->photon->pos[now->direction];
-        searchKNearest(
-            directionDiff < 0 ? now->left : now->right,
-            result, target, k
-        );
-
-        if (result.top().first > directionDiff * directionDiff || (int) result.size() < k)
-            searchKNearest(
-                directionDiff < 0 ? now->right : now->left,
-                result, target, k
-            );
     }
 
     void searchInRange(
@@ -112,9 +88,9 @@ private:
 
 public:
     KDTree(Photon *photonList, int len) {
-// #pragma omp parallel
+#pragma omp parallel
 {
-// #pragma omp single
+#pragma omp single
 {
         this->root = this->build(photonList, len, 0);
 }
@@ -124,24 +100,6 @@ public:
     ~KDTree() {
         release(this->root);
         this->root = nullptr;
-    }
-    
-    /**
-     * @return: The maximum distance & Photon vector
-     */
-    std::pair<double, std::vector<Photon *>> KNSearch(const Vector3f &target, int k) {
-        std::priority_queue<std::pair<double, Photon *>> q;
-        this->searchKNearest(this->root, q, target, k);
-
-        std::vector<Photon *> result;
-        double maxDistance = q.top().first;
-        while (!q.empty()) {
-            auto e = q.top();
-            q.pop();
-            result.push_back(e.second);
-        }
-
-        return std::make_pair(maxDistance, result);
     }
 
     std::vector<Photon *> IRSearch(const Vector3f &target, double d_sq) {

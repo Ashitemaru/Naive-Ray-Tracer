@@ -1,59 +1,153 @@
 
-PerspectiveCamera {
-    center 0 0 5
-    direction 0 0 -1
+LensCamera {
+    center 23 10 25
+    direction 0 -0.3 -1
     up 0 1 0
-    angle 100
-    width 400
-    height 400
+    angle 60
+    width 1920
+    height 960
     gamma 2.2
+    aperture 0.4
+    focal 17
 }
 
 Background {
     color 0 0 0
-    ambient 0.1 0.1 0.1
+    ambient 0 0 0
 }
 
 Materials {
-    numMaterials 3
-    LambertMaterial {
-        color 1 1 1
-        texture models/textures/pebble.bmp
-    }
+    numMaterials 6
     LambertMaterial {
         color 1 1 1
     }
-    TransparentMaterial {
+    GenericMaterial {
+        Kd 0.9 0.9 0.9
+        Ks 0.3 0.3 0.3
+        texture models/textures/Wood.bmp
+    }
+
+    GenericMaterial {
+        Kd 0.2 0.2 0.2
+        Ks 0.05 0.05 0.05
+        Ns 20
+    }
+    GenericMaterial {
+        Kd 1 1 1
+        Ks 1 1 1
+        Ni 1.2
+        d 0.5
+        texture models/textures/remilia.bmp
+    }
+
+    MirrorMaterial {
+        color 0 0.8 1
+    }
+
+    LambertMaterial {
         color 1 1 1
-        index 1.01
+        texture models/textures/wall.bmp
     }
 }
 
 Group {
-    numObjects 2
-    MaterialIndex 1
+    numObjects 12
+    MaterialIndex 0
     Transform {
-        Translate 0 -2 1
-        Scale 1 1 1
+        Translate 5 0 5
+        YRotate -30
+        Scale 2.5 3.5 2.5
+        TriangleMesh {
+            obj_file models/Lamp.obj
+        }
+    }
+
+    MaterialIndex 2
+    Rectangle {
+        a 13   0   10.4
+        b 13.5 1.5 13.6
+    }
+    MaterialIndex 3
+    Transform {
+        Translate 13.25 3.60001 12
+        XRotate -90
+        Rectangle {
+            a -0.15 -1.5 -2.1
+            b 0.15 1.5 2.1
+        }
+    }
+
+    MaterialIndex 0
+    Transform {
+        Translate 23 -0.1 8
+        Scale 4 4 4
         TriangleMesh {
             obj_file models/miku.obj
         }
     }
+
     MaterialIndex 0
+    Transform {
+        Translate 35 0 7
+        Scale 3 3 3
+        TriangleMesh {
+            obj_file models/wine.obj
+        }
+    }
+
+    MaterialIndex 4
+    Sphere {
+        center 30 2 17
+        radius 2
+    }
+
+    MaterialIndex 1
     Plane {
         normal 0 1 0
-        offset -2
-        e1 5 0 0
-        e2 0 0 -5
-        origin 0 -2 0
+        offset 0
+        e1 4.8 0 0
+        e2 0 0 2.193
+        origin 0 0 0
+    }
+    MaterialIndex 5
+    Plane {
+        normal 1 0 0
+        offset 0
+        e1 0 0 -70
+        e2 0 16.807 0
+        origin 0 0 10
+    }
+    Plane {
+        normal 0 0 1
+        offset 0
+        e1 70 0 0
+        e2 0 16.807 0
+        origin -10 0 0
+    }
+    MaterialIndex 0
+    Plane {
+        normal 0 0 -1
+        offset -50
+    }
+    Plane {
+        normal -1 0 0
+        offset -100
+    }
+    Plane {
+        normal 0 -1 0
+        offset -20
     }
 }
 
 Lights {
-    numLights 1
+    numLights 2
     PointLight {
-        position 0.0 5 4
-        power 70 70 70
+        position 50 18 20
+        power 400 400 400
+    }
+    PointLight {
+        position 10.39 8.610 8.113
+        power  100 100 100
     }
 }
 

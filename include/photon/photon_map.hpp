@@ -39,13 +39,6 @@ public:
         this->tree = new KDTree(photonList.data(), photonList.size());
     }
 
-    /**
-     * @return: The maximum distance & Photon vector
-     */
-    std::pair<double, std::vector<Photon *>> KNSearch(const Vector3f &target, int k) {
-        return this->tree->KNSearch(target, k);
-    }
-
     std::vector<Photon *> IRSearch(const Vector3f &target, double d_sq) {
         return this->tree->IRSearch(target, d_sq);
     }

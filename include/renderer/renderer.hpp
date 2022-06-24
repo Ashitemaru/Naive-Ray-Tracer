@@ -29,20 +29,18 @@ private:
         std::vector<Photon> photonList;
         int lightNum = parser.getNumLights();
 
-// #pragma omp parallel for schedule(dynamic, 100)
+#pragma omp parallel for schedule(dynamic, 100)
         // Traverse all the photons
         for (int id = 0; id < this->photonNum; ++id) {
             // Randomly get a light source
-            RandomEngine &reng = rengList[/* omp_get_thread_num() */ 0];
-            int lightId = reng.getUniformInt(0, lightNum);
+            RandomEngine &reng = rengList[omp_get_thread_num()];
+            int lightId = reng.getUniformInt(0, lightNum - 1);
             Light *light = parser.getLight(lightId);
 
             // Sample a ray from this light source
             auto result = light->sampleRay(reng);
             Ray ray = result.ray;
             Vector3f power = result.power;
-
-            std::cout << "Get: " << __FILE__ << ": " << __LINE__ << std::endl;
 
             if (result.pdf < 0) continue; // Invalid ray, pass it
             power = power / std::max(1e-6, result.pdf) * lightNum;
@@ -54,8 +52,6 @@ private:
                     v[2] < 0 || std::isinf(v[2]) || std::isnan(v[2])
                 );
             };
-
-            std::cout << "Get: " << __FILE__ << ": " << __LINE__ << std::endl;
 
             // Let the photon travel & bump on objects, calc its power
             for (int dep = 0; dep < this->depth; ++dep) {
@@ -77,8 +73,6 @@ private:
                 bool isIntersect = parser.intersect(ray, hit, 1e-6, isLight, lightId);
                 if (!isIntersect) break; // No intersect, photon travels straightly
 
-                std::cout << "Get: " << __FILE__ << ": " << __LINE__ << std::endl;
-
                 // Calc the new power of photon & direction of it
                 Material *material = hit.material;
                 HitSurface surface = hit.surface;
@@ -96,7 +90,7 @@ private:
                 Vector3f co = res.x;
 
                 if (res.isDiffuse) {
-// #pragma omp critical
+#pragma omp critical
                     {
                         photonList.push_back(Photon { surface.position, in, power });
                     }
@@ -168,11 +162,10 @@ private:
 
         Vector3f color = Vector3f::ZERO;
         for (auto ph_ptr : res) {
-            Photon ph = *ph_ptr;
             color +=
-                ph.power * material->shade(
+                ph_ptr->power * material->shade(
                     in,
-                    Trans::worldToLocal(y, z, x, ph.direction),
+                    Trans::worldToLocal(y, z, x, ph_ptr->direction),
                     false
                 );
         };
@@ -193,24 +186,24 @@ public:
         std::vector<Vector3f> img(image.getHeight() * image.getWidth());
 
         // Initialize random engines
-        std::vector<RandomEngine> rengList(/* omp_get_max_threads() */ 12);
+        std::vector<RandomEngine> rengList(omp_get_max_threads());
         for (int i = 0; i < (int) rengList.size(); i++) {
-            rengList[i].setSeed(rengList[i].getUniformInt(0, rengList.size()) + i * rengList.size());
+            rengList[i].setSeed(rengList[i].getUniformInt(0, rengList.size() - 1) + i * rengList.size());
         }
 
-        for (int i = 0; i < this->iter; i++) {
-            std::cout << "Now at iteration: " << i << std::endl;
+        for (int iter_ = 0; iter_ < this->iter; iter_++) {
+            std::cout << "Now at iteration: " << iter_ << std::endl;
 
             this->buildPhotonMap(parser, rengList);
             std::cout << "Finish building Photon Map" << std::endl;
 
             Image renderImg(image.getWidth(), image.getHeight()); 
 
-// #pragma omp parallel for collapse(2) schedule(dynamic, 5)
+#pragma omp parallel for collapse(2) schedule(dynamic, 5)
             // Traverse all the pixels
             for (int i = 0; i < image.getWidth(); i++) {
                 for (int j = 0; j < image.getHeight(); j++) {
-                    RandomEngine& reng = rengList[/* omp_get_thread_num() */ 0];
+                    RandomEngine& reng = rengList[omp_get_thread_num()];
                     Vector3f color = Vector3f::ZERO;
 
                     // Sample rays
@@ -234,26 +227,21 @@ public:
                     img[j + i * image.getHeight()] += color / this->rayNum;
 
                     // Save this pass
-                    Vector3f colorTmp = img[j + i * image.getHeight()] / (i + 1);
+                    Vector3f colorTmp = img[j + i * image.getHeight()] / (iter_ + 1);
 
                     double maxColor = 1.;
                     for (int k = 0; k < 3; k++) {
-                        colorTmp[k] = std::pow(colorTmp[k], 1.0f / parser.getCamera()->getGamma());
+                        colorTmp[k] = std::pow(colorTmp[k], 1. / parser.getCamera()->getGamma());
                         maxColor = std::max(maxColor, colorTmp[k]);
                     }
 
                     renderImg.setPixel(i, j, colorTmp / maxColor);
-
-// #pragma omp critical
-                    {
-                        std::cout << "i = " << i << ", j = " << j << " finished." << std::endl;
-                    }
                 }
             }
 
             // Save the temporary result & step the search radius
-            renderImg.saveBMP(("tmp/" + std::to_string(i) + ".bmp").c_str());
-            searchRadius *= sqrt((i + this->alpha) / (i + 1));
+            renderImg.saveBMP(("tmp/" + std::to_string(iter_) + ".bmp").c_str());
+            searchRadius *= sqrt((iter_ + this->alpha) / (iter_ + 1));
         }
 
         // Pass out the render result
@@ -261,7 +249,6 @@ public:
             for (int j = 0; j < image.getHeight(); j++) {
                 Vector3f color = img[j + i * image.getHeight()] / this->iter;
                 double maxColor = 1.;
-
 
                 // TODO: Understand operations here
                 for (int k = 0; k < 3; k++) {

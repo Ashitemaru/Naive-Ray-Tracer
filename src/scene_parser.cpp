@@ -663,7 +663,7 @@ int SceneParser::getToken(char token[MAX_PARSER_TOKEN_LENGTH]) {
 
 Vector3f SceneParser::readVector3f() {
 	double x, y, z;
-	int count = fscanf(file, "%f %f %f", &x, &y, &z);
+	int count = fscanf(file, "%lf %lf %lf", &x, &y, &z);
 	if (count != 3) {
 		printf("Error trying to read 3 doubles to make a Vector3f\n");
 		assert(0);
@@ -673,7 +673,7 @@ Vector3f SceneParser::readVector3f() {
 
 double SceneParser::readDouble() {
 	double answer;
-	int count = fscanf(file, "%f", &answer);
+	int count = fscanf(file, "%lf", &answer);
 	if (count != 1) {
 		printf("Error trying to read 1 double\n");
 		assert(0);
