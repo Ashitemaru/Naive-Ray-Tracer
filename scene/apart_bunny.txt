@@ -1,0 +1,74 @@
+
+LensCamera {
+    center 0 0 5
+    direction 0 0 -1
+    up 0 1 0
+    angle 100
+    width 640
+    height 360
+    gamma 2.2
+    aperture 0.2
+    focal 3
+}
+
+Background {
+    color 0.2 0.2 0.2
+    ambient 0.1 0.1 0.1
+}
+
+Materials {
+    numMaterials 4
+    LambertMaterial {
+        color 1 1 1
+        texture models/textures/pebble.bmp
+    }
+    MirrorMaterial {
+        color 0.746 0.676 0.434
+    }
+    TransparentMaterial {
+        color 0.9 0.9 0.9
+        index 1.5
+    }
+    PhongMaterial { 
+        diffuseColor 0.746 0.676 0.434
+        specularColor 0.746 0.676 0.434
+        shininess 20 
+    }
+}
+
+Group {
+    numObjects 3
+    MaterialIndex 3
+    Transform {
+        Translate -1 -1 -1
+        Scale 10 10 10
+        TriangleMesh {
+            obj_file models/bunny_1k.obj
+        }
+    }
+    MaterialIndex 2
+    Transform {
+        Translate 0.8 -2 1.5
+        Scale 10 10 10
+        TriangleMesh {
+            obj_file models/bunny_1k.obj
+        }
+    }
+    MaterialIndex 0
+    Plane {
+        normal 0 1 0
+        offset -2
+        e1 5 0 0
+        e2 0 0 -5
+        origin 0 -2 0
+    }
+}
+
+Lights {
+    numLights 1
+    PointLight {
+        position 0.0 5 4
+        power 70 70 70
+    }
+}
+

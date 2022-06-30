@@ -12,4 +12,4 @@ cmake ..
 make -j
 cd ..
 
-./bin/NAIVE_RAY_TRACER ./test.txt ./test.bmp
+./bin/NAIVE_RAY_TRACER_ ./image/final.txt ./image/final.bmp 

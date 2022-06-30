@@ -57,15 +57,6 @@ private:
             for (int dep = 0; dep < this->depth; ++dep) {
                 if (!validVector(power)) break; // Invalid photon, pass it
 
-                // TODO: Randomly decay the photon
-                if (dep > 0) {
-                    double prob = std::max(power[0], std::max(power[1], power[2]));
-                    prob = prob > 1. ? 1. : prob;
-
-                    if (reng.getUniformDouble(0, 1) >= prob) break;
-                    power = power / prob;
-                }
-
                 // Get the next intersection
                 Hit hit;
                 bool isLight;
@@ -168,7 +159,7 @@ private:
                     Trans::worldToLocal(y, z, x, ph_ptr->direction),
                     false
                 );
-        };
+        }
         if (surface.hasTexture && hit.material->textured())
             color = color * hit.material->getTexturePixel(surface.cord);
 
@@ -240,7 +231,7 @@ public:
             }
 
             // Save the temporary result & step the search radius
-            renderImg.saveBMP(("tmp/" + std::to_string(iter_) + ".bmp").c_str());
+            renderImg.saveBMP(("tmp/" + std::to_string(iter_) + ".test.bmp").c_str());
             searchRadius *= sqrt((iter_ + this->alpha) / (iter_ + 1));
         }
 
